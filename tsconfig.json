@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
+    "lib": ["ES6", "DOM"],
     "target": "ES6",
     "module": "CommonJS",
     "declaration": true,
