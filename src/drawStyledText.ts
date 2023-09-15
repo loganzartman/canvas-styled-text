@@ -1,6 +1,5 @@
 import {StyledText, StyledTextStyle} from './types';
 import {
-  aggregateLineMetrics,
   computeLengthPx,
   extendContextStyles,
   getLineSpans,
@@ -22,33 +21,18 @@ export const drawStyledText = (
   const spans = normalizeStyledText(text);
   const lines = getLineSpans(spans);
   const linesMetrics = lines.map((line) => measureLine(ctx, line, baseStyle));
-  const textMetrics = aggregateLineMetrics(linesMetrics);
 
   const textAlign = ctx.textAlign;
-  const textBaseline = ctx.textBaseline;
   ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
 
-  let yStart: number;
-  if (textBaseline === 'top') {
-    yStart = 0;
-  } else if (textBaseline === 'middle') {
-    yStart =
-      -(
-        textMetrics.actualBoundingBoxAscent +
-        textMetrics.actualBoundingBoxDescent
-      ) / 2;
-  } else if (textBaseline === 'bottom') {
-    yStart = -(
-      textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent
-    );
-  } else {
-    throw new Error(`Unsupported textBaseline: ${textBaseline}`);
-  }
-
+  let yStart = 0;
   for (let l = 0; l < lines.length; ++l) {
     const line = lines[l];
     const {lineMetrics, spanMetrics} = linesMetrics[l];
+
+    if (l > 0) {
+      yStart += lineMetrics.actualBoundingBoxAscent;
+    }
 
     let xStart: number;
     if (textAlign === 'left') {
@@ -61,31 +45,22 @@ export const drawStyledText = (
       throw new Error(`Unsupported textAlign: ${textAlign}`);
     }
 
-    ctx.strokeStyle = 'lime';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(
-      xStart + x,
-      yStart + y,
-      lineMetrics.width,
-      lineMetrics.actualBoundingBoxAscent +
-        lineMetrics.actualBoundingBoxDescent,
-    );
-
+    const lineCenter =
+      0.5 *
+      (lineMetrics.fontBoundingBoxDescent - lineMetrics.fontBoundingBoxAscent);
     for (let s = 0; s < line.length; ++s) {
       const span = line[s];
       const m = spanMetrics[s];
-      const lineCenteringOffset =
-        (lineMetrics.actualBoundingBoxAscent +
-          lineMetrics.actualBoundingBoxDescent -
-          (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent)) *
-        0.5;
+      const spanCenter =
+        0.5 * (m.fontBoundingBoxDescent - m.fontBoundingBoxAscent);
+      const verticalPos = lineCenter - spanCenter;
 
       ctx.save();
-      ctx.font = style('font', span.style, baseStyle);
-      ctx.fillStyle = style('fill', span.style, baseStyle);
       const top = computeLengthPx(style('top', span.style, baseStyle), m);
       const scale = style('scale', span.style, baseStyle);
-      ctx.translate(x + xStart, y + yStart + top + lineCenteringOffset);
+      ctx.translate(x + xStart, y + yStart + top + verticalPos);
+      ctx.font = style('font', span.style, baseStyle);
+      ctx.fillStyle = style('fill', span.style, baseStyle);
       ctx.scale(scale, scale);
       ctx.fillText(span.text, 0, 0);
       if (hasStroke(span.style, baseStyle)) {
@@ -97,9 +72,7 @@ export const drawStyledText = (
       xStart += m.width;
     }
 
-    yStart +=
-      lineMetrics.actualBoundingBoxAscent +
-      lineMetrics.actualBoundingBoxDescent;
+    yStart += lineMetrics.actualBoundingBoxDescent;
   }
 
   ctx.restore();
