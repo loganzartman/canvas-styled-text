@@ -7,12 +7,22 @@ on:
     branches:
       - main
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
@@ -34,12 +44,12 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
         with:
           name: dist-artifacts
           path: dist.zip
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
@@ -66,3 +76,28 @@ jobs:
           asset_path: ./dist.zip
           asset_name: dist.zip
           asset_content_type: application/zip
+
+  storybook:
+    environment:
+      name: storybook
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - run: pnpm install
+      - run: pnpm build-storybook
+      - uses: actions/configure-pages@v3
+      - uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'storybook-static'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
