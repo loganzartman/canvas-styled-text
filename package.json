@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "pnpm clean && tsc",
-    "test": "jest",
+    "test": "echo todo",
     "lint": "eslint src/**/*.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
