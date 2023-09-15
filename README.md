@@ -6,6 +6,8 @@ Inspired by but not conforming to the [canvas-formatted-text WICG proposal](http
 
 Hopefully this will be unnecessary someday!
 
+## [Examples](https://loganzartman.github.io/canvas-styled-text)
+
 ## Installation
 
 `npm i -s canvas-styled-text`
