@@ -2,18 +2,11 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended",
-    "plugin:storybook/recommended"
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint",
-    "simple-import-sort"
-  ],
-  "ignorePatterns": [
-    "dist/**/*",
-    "node_modules/**/*"
-  ],
+  "plugins": ["@typescript-eslint", "simple-import-sort"],
+  "ignorePatterns": ["dist/**/*", "node_modules/**/*"],
   "rules": {
     "prettier/prettier": [
       "error",

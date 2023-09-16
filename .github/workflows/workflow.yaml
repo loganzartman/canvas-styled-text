@@ -77,9 +77,9 @@ jobs:
           asset_name: dist.zip
           asset_content_type: application/zip
 
-  storybook:
+  ladle:
     environment:
-      name: storybook
+      name: ladle
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
@@ -93,11 +93,11 @@ jobs:
         with:
           version: 8
       - run: pnpm install
-      - run: pnpm build-storybook
+      - run: pnpm build-ladle
       - uses: actions/configure-pages@v3
       - uses: actions/upload-pages-artifact@v2
         with:
-          path: 'storybook-static'
+          path: 'ladle-static'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
