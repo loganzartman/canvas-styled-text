@@ -9,11 +9,10 @@
     "build": "pnpm clean && tsc",
     "test": "docker-compose build tests && docker-compose run --rm tests sh -c \"pnpm test-nocontainer $@\"",
     "test-nocontainer": "pnpm exec playwright test",
-    "update-snapshots": "pnpm run test -u",
+    "update-snapshots": "pnpm run test -- -u",
     "lint": "eslint src/**/*.ts",
     "serve-ladle": "pnpm ladle serve",
-    "build-ladle": "pnpm ladle build",
-    "preview-ladle": "pnpm ladle preview -p 61000"
+    "build-ladle": "pnpm ladle build --base=/canvas-styled-text/"
   },
   "keywords": [],
   "author": "",

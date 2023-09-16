@@ -5,8 +5,8 @@ export default defineConfig({
   fullyParallel: true,
   retries: 0,
   webServer: {
-    command: 'pnpm preview-ladle',
-    url: `http://localhost:61000/canvas-styled-text/`,
+    command: 'pnpm serve-ladle',
+    url: `http://localhost:61000/`,
     reuseExistingServer: true,
   },
 });

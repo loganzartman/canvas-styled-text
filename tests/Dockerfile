@@ -8,5 +8,3 @@ COPY ./package.json .
 RUN pnpm i
 
 COPY . .
-
-RUN pnpm build-ladle

@@ -5,5 +5,5 @@ services:
       context: ./
       dockerfile: ./tests/Dockerfile
     volumes:
-      - ./tests:/canvas-styled/text/tests
-      - ./test-results:/canvas-styled/text/test-results
+      - ./tests:/canvas-styled-text/tests
+      - ./test-results:/canvas-styled-text/test-results

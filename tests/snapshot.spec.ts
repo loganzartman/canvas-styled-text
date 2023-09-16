@@ -3,7 +3,7 @@ import {expect, test} from '@playwright/test';
 import fetch from 'sync-fetch';
 
 // URL where Ladle is served
-const url = 'http://localhost:61000/canvas-styled-text';
+const url = 'http://localhost:61000';
 
 // fetch Ladle's meta file
 // https://ladle.dev/docs/meta
