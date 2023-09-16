@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "pnpm clean && tsc",
-    "test": "pnpm build-docker && node scripts/test-docker.mjs",
+    "test": "pnpm build-docker && node scripts/test-docker.mjs $@",
     "test-nocontainer": "pnpm exec playwright test",
     "update-snapshots": "pnpm run test -u",
     "lint": "eslint src/**/*.ts",

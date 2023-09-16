@@ -2,4 +2,4 @@
 set -euo pipefail
 pnpm install
 pnpm build-ladle
-pnpm test-nocontainer
+pnpm test-nocontainer $@
