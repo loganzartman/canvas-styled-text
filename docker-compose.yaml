@@ -1,0 +1,9 @@
+version: '3'
+services:
+  tests:
+    build:
+      context: ./
+      dockerfile: ./tests/Dockerfile
+    volumes:
+      - ./tests:/canvas-styled/text/tests
+      - ./test-results:/canvas-styled/text/test-results

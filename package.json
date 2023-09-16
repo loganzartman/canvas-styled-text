@@ -7,11 +7,10 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "pnpm clean && tsc",
-    "test": "pnpm build-docker && node scripts/test-docker.mjs $@",
+    "test": "docker-compose build tests && docker-compose run --rm tests sh -c \"pnpm test-nocontainer $@\"",
     "test-nocontainer": "pnpm exec playwright test",
     "update-snapshots": "pnpm run test -u",
     "lint": "eslint src/**/*.ts",
-    "build-docker": "docker build -t canvas-styled-text tests",
     "serve-ladle": "pnpm ladle serve",
     "build-ladle": "pnpm ladle build",
     "preview-ladle": "pnpm ladle preview -p 61000"
