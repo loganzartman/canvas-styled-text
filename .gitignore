@@ -2,3 +2,4 @@ node_modules
 dist
 ladle-static
 test-results
+.pnpm-store
