@@ -1,10 +1,22 @@
 # canvas-styled-text
 
-`fillText` but with support for multiple lines and multiple fonts and styles in one block of text!
+`fillText` and `strokeText` but with support for multiple lines and multiple fonts and styles in one block of text!
 
-Inspired by but not conforming to the [canvas-formatted-text WICG proposal](https://github.com/WICG/canvas-formatted-text).
+Inspired by but not even vaguely conforming to the [canvas-formatted-text WICG proposal](https://github.com/WICG/canvas-formatted-text).
 
 Hopefully this will be unnecessary someday!
+
+Features:
+
+- change font
+- change text color
+- multiple lines
+- supports textAlign
+- supports textBaseline
+- scale text
+- vertical offset
+- inherits style from canvas context by default
+- no runtime dependencies!
 
 ## [Examples](https://loganzartman.github.io/canvas-styled-text)
 
@@ -27,7 +39,7 @@ const ctx = canvas.getContext('2d');
 // draws boring unformatted strings if you want
 drawStyledText(ctx, 'Hello world', 100, 100);
 
-// supports some different textAligns and textBaselines (must be set globally)
+// supports textAlign and textBaseline (must be set globally)
 ctx.textAlign = 'center';
 ctx.textBaseline = 'center';
 
@@ -36,15 +48,15 @@ drawStyledText(
   ctx,
   [
     // spans are concatenated in order...
-    {text: 'Hello '},
+    'Hello',
     // you can override style props for each text span
     {text: 'world', style: {fill: 'red'}},
     // you can put a newline anywhere, it will work as expected
-    {text: '!\n'},
+    '!\n',
     // style props mirror those available in canvas
     {text: 'New font', style: {font: '10px serif'}},
     // you can do some basic typesetting (this looks like a superscript)
-    {text: '2', style: {scale: 0.75, top: {value: '-30', unit: '%'}}},
+    {text: '2', style: {scale: 0.75, top: {value: -30, unit: '%'}}},
   ],
   100,
   200,
@@ -64,3 +76,13 @@ const metrics = measureStyledText(ctx, [
   {text: 'world!', style: {scale: 1.2}},
 ]);
 ```
+
+## Running tests
+
+I use [Ladle](https://ladle.dev/) for stories and [Playwright]() to generate snapshot images of them. Unfortunately, because this project is about text rendering, we need to run in Docker for consistent font rendering.
+
+To run tests:
+
+1. [Install Docker](https://docs.docker.com/engine/install/)
+2. Run `pnpm test` to build the Docker image and run Playwright in it
+   a. It's slow, sorry.

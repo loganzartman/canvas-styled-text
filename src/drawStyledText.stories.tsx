@@ -3,6 +3,7 @@ import React from 'react';
 
 import {drawStyledText} from './drawStyledText';
 import {TestCanvas} from './test-utils';
+import {StyledTextStyle} from './types';
 
 export default {
   title: 'Draw styled text',
@@ -29,10 +30,11 @@ export const Spans: Story = () => (
       drawStyledText(
         ctx,
         [
-          {text: 'one', style: {fill: 'green', font: '40px sans-serif'}},
-          {text: 'two', style: {fill: 'blue', font: '40px serif'}},
-          {text: 'three', style: {fill: 'purple', font: '40px monospace'}},
-          {text: 'four', style: {fill: 'red', font: '40px cursive'}},
+          {text: 'graphic', style: {fill: 'green', font: '40px system-ui'}},
+          {text: 'design', style: {fill: 'blue', font: '40px serif'}},
+          {text: 'is', style: {fill: 'purple', font: '40px monospace'}},
+          {text: 'my', style: {fill: 'red', font: '40px cursive'}},
+          {text: 'passion', style: {fill: 'orange', font: '40px fantasy'}},
         ],
         32,
         32,
@@ -111,6 +113,46 @@ export const TextBaseline: Story = () => (
         [{text: 'baseline '}, {text: 'hanging', style: {scale: 0.5}}],
         w * 0.3,
         h * 0.6,
+        baseStyle,
+      );
+    }}
+  />
+);
+
+export const KitchenSink: Story = () => (
+  <TestCanvas
+    w={w}
+    h={h}
+    draw={(ctx) => {
+      const baseStyle: StyledTextStyle = {font: '32px serif'};
+
+      drawStyledText(
+        ctx,
+        [
+          {text: 'The perfect '},
+          {text: 'square', style: {fill: 'red'}},
+          {text: ' has no '},
+          {text: 'corners', style: {scale: 0.7, top: {value: -80, unit: '%'}}},
+          {text: '\n'},
+          {text: 'Great '},
+          {
+            text: 'talents',
+            style: {
+              stroke: 'purple',
+              fill: 'white',
+              strokeWidth: 2,
+              font: 'italic 40px cursive',
+            },
+          },
+          {text: ' ripen late\n'},
+          {text: 'The highest notes are hard to hear\n', style: {scale: 0.5}},
+          {
+            text: 'The greatest form has no shape\n',
+            style: {font: '30px sans-serif', fill: 'green'},
+          },
+        ],
+        32,
+        32,
         baseStyle,
       );
     }}
