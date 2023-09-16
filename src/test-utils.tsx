@@ -42,6 +42,7 @@ export const TestCanvas = ({
 
   return (
     <canvas
+      data-testid="test-canvas"
       ref={canvasRef}
       width={Math.ceil(w * window.devicePixelRatio)}
       height={Math.ceil(h * window.devicePixelRatio)}
@@ -50,7 +51,6 @@ export const TestCanvas = ({
         width: `${w}px`,
         height: 'auto',
         boxShadow: '0px 8px 24px rgba(0,0,0,0.2), 0px 2px 7px rgba(0,0,0,0.3)',
-        borderRadius: '16px',
       }}
     ></canvas>
   );

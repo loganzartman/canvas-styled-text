@@ -31,6 +31,7 @@ jobs:
           version: 8
       - run: pnpm install
       - run: pnpm lint
+      - run: pnpm playwright install
       - run: pnpm test
       - run: pnpm build
       - run: zip -r dist.zip dist/

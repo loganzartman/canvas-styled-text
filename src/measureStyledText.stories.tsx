@@ -8,7 +8,7 @@ import {TestCanvas} from './test-utils';
 import {StyledText} from './types';
 
 export default {
-  title: 'measureStyledText',
+  title: 'Measure styled text',
 } satisfies StoryDefault;
 
 const w = 800;
