@@ -8,6 +8,8 @@ Hopefully this will be unnecessary someday!
 
 ## [Examples](https://loganzartman.github.io/canvas-styled-text)
 
+![image](https://github.com/loganzartman/canvas-styled-text/assets/3401573/c21445f8-dc83-4845-8475-5f592ae9fc83)
+
 ## Installation
 
 `npm i -s canvas-styled-text`
