@@ -22,32 +22,23 @@ export const drawStyledText = (
   const lines = getLineSpans(spans);
   const linesMetrics = lines.map((line) => measureLine(ctx, line, baseStyle));
 
-  const textAlign = ctx.textAlign;
   ctx.textAlign = 'left';
 
   let yStart = 0;
+
   for (let l = 0; l < lines.length; ++l) {
     const line = lines[l];
     const {lineMetrics, spanMetrics} = linesMetrics[l];
+    const lineCenter =
+      0.5 *
+      (lineMetrics.fontBoundingBoxDescent - lineMetrics.fontBoundingBoxAscent);
 
     if (l > 0) {
       yStart += lineMetrics.actualBoundingBoxAscent;
     }
 
-    let xStart: number;
-    if (textAlign === 'left') {
-      xStart = 0;
-    } else if (textAlign === 'center') {
-      xStart = -lineMetrics.width / 2;
-    } else if (textAlign === 'right') {
-      xStart = -lineMetrics.width;
-    } else {
-      throw new Error(`Unsupported textAlign: ${textAlign}`);
-    }
+    let xStart = -lineMetrics.actualBoundingBoxLeft;
 
-    const lineCenter =
-      0.5 *
-      (lineMetrics.fontBoundingBoxDescent - lineMetrics.fontBoundingBoxAscent);
     for (let s = 0; s < line.length; ++s) {
       const span = line[s];
       const m = spanMetrics[s];

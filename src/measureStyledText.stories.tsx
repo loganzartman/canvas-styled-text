@@ -26,8 +26,8 @@ export const Basic: Story = () => (
       ];
       const m = measureStyledText(ctx, text);
       ctx.translate(32, 64);
-      drawStyledText(ctx, text, 0, 0);
       drawTextMetrics(ctx, m, 0, 0);
+      drawStyledText(ctx, text, 0, 0);
     }}
   />
 );

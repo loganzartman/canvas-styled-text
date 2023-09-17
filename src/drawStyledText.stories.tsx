@@ -48,6 +48,7 @@ export const Multiline: Story = () => (
     w={w}
     h={h}
     draw={(ctx) => {
+      ctx.textAlign = 'left';
       drawStyledText(ctx, 'Hello\nworld!', 32, 32);
     }}
   />
@@ -61,17 +62,27 @@ export const TextAlign: Story = () => (
       const baseStyle = {fill: 'black'};
 
       ctx.textBaseline = 'top';
+      ctx.font = '34px sans-serif';
       ctx.fillStyle = 'red';
       ctx.fillRect(w / 2, 0, 1, h);
 
-      ctx.textAlign = 'left';
-      drawStyledText(ctx, 'left\nand', w / 2, h * 0.1, baseStyle);
-
-      ctx.textAlign = 'right';
-      drawStyledText(ctx, 'right\nand', w / 2, h * 0.4, baseStyle);
-
-      ctx.textAlign = 'center';
-      drawStyledText(ctx, 'center\n!', w / 2, h * 0.7, baseStyle);
+      const aligns: CanvasTextAlign[] = [
+        'start',
+        'left',
+        'center',
+        'right',
+        'end',
+      ];
+      aligns.forEach((align, i) => {
+        ctx.textAlign = align;
+        drawStyledText(
+          ctx,
+          [{text: 'text '}, {text: 'at '}, {text: 'the\n'}, {text: align}],
+          w / 2,
+          (h * (i + 0.5)) / (aligns.length + 1),
+          baseStyle,
+        );
+      });
     }}
   />
 );
@@ -83,38 +94,31 @@ export const TextBaseline: Story = () => (
     draw={(ctx) => {
       const baseStyle = {fill: 'black'};
 
-      ctx.textAlign = 'left';
+      ctx.font = '32px sans-serif';
+      ctx.textAlign = 'center';
       ctx.fillStyle = 'red';
 
-      ctx.fillRect(0, h * 0.2, w, 1);
-      ctx.textBaseline = 'alphabetic';
-      drawStyledText(
-        ctx,
-        [{text: 'baseline '}, {text: 'alphabetic', style: {scale: 0.5}}],
-        w * 0.3,
-        h * 0.2,
-        baseStyle,
-      );
+      const baselines: CanvasTextBaseline[] = [
+        'alphabetic',
+        'bottom',
+        'hanging',
+        'ideographic',
+        'middle',
+        'top',
+      ];
 
-      ctx.fillRect(0, h * 0.4, w, 1);
-      ctx.textBaseline = 'middle';
-      drawStyledText(
-        ctx,
-        [{text: 'baseline '}, {text: 'middle', style: {scale: 0.5}}],
-        w * 0.3,
-        h * 0.4,
-        baseStyle,
-      );
-
-      ctx.fillRect(0, h * 0.6, w, 1);
-      ctx.textBaseline = 'hanging';
-      drawStyledText(
-        ctx,
-        [{text: 'baseline '}, {text: 'hanging', style: {scale: 0.5}}],
-        w * 0.3,
-        h * 0.6,
-        baseStyle,
-      );
+      baselines.forEach((baseline, i) => {
+        const y = (h * (i + 1)) / (baselines.length + 1);
+        ctx.textBaseline = baseline;
+        ctx.fillRect(0, y, w, 1);
+        drawStyledText(
+          ctx,
+          [{text: 'baseline '}, {text: baseline, style: {scale: 0.5}}],
+          w * 0.5,
+          y,
+          baseStyle,
+        );
+      });
     }}
   />
 );

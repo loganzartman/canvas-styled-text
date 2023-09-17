@@ -132,6 +132,9 @@ export const measureLine = (
     } as TextMetrics;
   });
 
+  let xMin = 0;
+  let xMax = 0;
+
   for (let i = 0; i < line.length; ++i) {
     const span = line[i];
     const m = spanMetrics[i];
@@ -154,7 +157,17 @@ export const measureLine = (
       lineMetrics.fontBoundingBoxDescent,
       m.fontBoundingBoxDescent + top,
     );
+
+    if (m.actualBoundingBoxLeft > 0) {
+      xMin -= m.actualBoundingBoxLeft;
+    } else {
+      xMax -= m.actualBoundingBoxLeft;
+    }
+    xMax += m.actualBoundingBoxRight;
   }
+
+  lineMetrics.actualBoundingBoxLeft = -xMin;
+  lineMetrics.actualBoundingBoxRight = xMax;
 
   ctx.restore();
   return {lineMetrics, spanMetrics};
@@ -180,6 +193,10 @@ export const aggregateLineMetrics = (
     linesMetrics[0].lineMetrics.actualBoundingBoxAscent;
   metrics.fontBoundingBoxAscent =
     linesMetrics[0].lineMetrics.fontBoundingBoxAscent;
+  metrics.actualBoundingBoxLeft =
+    linesMetrics[0].lineMetrics.actualBoundingBoxLeft;
+  metrics.actualBoundingBoxRight =
+    linesMetrics[0].lineMetrics.actualBoundingBoxRight;
   for (let i = 0; i < linesMetrics.length; ++i) {
     const m = linesMetrics[i].lineMetrics;
     if (i < linesMetrics.length - 1) {
@@ -188,6 +205,14 @@ export const aggregateLineMetrics = (
       metrics.fontBoundingBoxDescent += h;
     }
     metrics.width = Math.max(metrics.width, m.width);
+    metrics.actualBoundingBoxLeft = Math.max(
+      metrics.actualBoundingBoxLeft,
+      m.actualBoundingBoxLeft,
+    );
+    metrics.actualBoundingBoxRight = Math.max(
+      metrics.actualBoundingBoxRight,
+      m.actualBoundingBoxRight,
+    );
   }
   metrics.actualBoundingBoxDescent +=
     linesMetrics[linesMetrics.length - 1].lineMetrics.actualBoundingBoxDescent;
