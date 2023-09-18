@@ -30,9 +30,8 @@ export const TestCanvas = ({
         ctx.textAlign = 'left';
         drawRef.current(ctx);
         ctx.restore();
-
-        afRef.current = requestAnimationFrame(f);
       }
+      afRef.current = requestAnimationFrame(f);
     };
     afRef.current = requestAnimationFrame(f);
     return () => {

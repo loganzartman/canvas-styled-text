@@ -1,13 +1,8 @@
+import {TextMetricsCache} from './textCache';
 import {StyledText, StyledTextStyle} from './types';
-import {
-  computeLengthPx,
-  extendContextStyles,
-  getLineSpans,
-  hasStroke,
-  measureLine,
-  normalizeStyledText,
-  style,
-} from './util';
+import {computeLengthPx, extendContextStyles, hasStroke, style} from './util';
+
+const tmCache = new TextMetricsCache(256);
 
 export const drawStyledText = (
   ctx: CanvasRenderingContext2D,
@@ -18,9 +13,7 @@ export const drawStyledText = (
 ) => {
   ctx.save();
   baseStyle = extendContextStyles(ctx, baseStyle);
-  const spans = normalizeStyledText(text);
-  const lines = getLineSpans(spans);
-  const linesMetrics = lines.map((line) => measureLine(ctx, line, baseStyle));
+  const {lines, linesMetrics} = tmCache.measureStyledText(ctx, text, baseStyle);
 
   ctx.textAlign = 'left';
 

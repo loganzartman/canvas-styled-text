@@ -162,3 +162,26 @@ export const KitchenSink: Story = () => (
     }}
   />
 );
+
+export const PerformanceTest: Story = () => (
+  <TestCanvas
+    w={w}
+    h={h}
+    draw={(ctx) => {
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const n = 1000;
+      for (let i = 0; i < n; ++i) {
+        drawStyledText(
+          ctx,
+          'Hello\nworld!',
+          (Math.sin((i / n) * Math.PI * 2 + Date.now() * 0.0005) * w) / 2 +
+            w / 2,
+          (Math.cos((i / n) * Math.PI * 16 + Date.now() * 0.001) * h) / 2 +
+            h / 2,
+        );
+      }
+    }}
+  />
+);

@@ -6,7 +6,7 @@ import {
   TextMetricsShape,
 } from './types';
 
-type MeasureLineResult = {
+export type MeasureLineResult = {
   lineMetrics: TextMetricsShape;
   spanMetrics: Array<TextMetricsShape>;
 };
