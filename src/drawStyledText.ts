@@ -1,8 +1,12 @@
-import {TextMetricsCache} from './textCache';
 import {StyledText, StyledTextStyle} from './types';
-import {computeLengthPx, extendContextStyles, hasStroke, style} from './util';
-
-const tmCache = new TextMetricsCache(256);
+import {
+  computeFullTextMetrics,
+  computeLengthPx,
+  extendContextStyles,
+  hasStroke,
+  normalizedTextAlign,
+  style,
+} from './util';
 
 export const drawStyledText = (
   ctx: CanvasRenderingContext2D,
@@ -11,10 +15,18 @@ export const drawStyledText = (
   y: number,
   baseStyle?: StyledTextStyle,
 ) => {
-  ctx.save();
   baseStyle = extendContextStyles(ctx, baseStyle);
-  const {lines, linesMetrics} = tmCache.measureStyledText(ctx, text, baseStyle);
+  const metrics = computeFullTextMetrics(ctx, text, baseStyle);
 
+  ctx.save();
+  ctx.translate(x, y);
+
+  const {lines, linesMetrics} = metrics;
+  const desiredTextAlign = ctx.textAlign;
+  const align = normalizedTextAlign(
+    desiredTextAlign,
+    style('direction', baseStyle),
+  );
   ctx.textAlign = 'left';
 
   let yStart = 0;
@@ -30,7 +42,16 @@ export const drawStyledText = (
       yStart += lineMetrics.actualBoundingBoxAscent;
     }
 
-    let xStart = -lineMetrics.actualBoundingBoxLeft;
+    let xStart: number;
+    if (align === 'left') {
+      xStart = 0;
+    } else if (align === 'center') {
+      xStart = -lineMetrics.width / 2;
+    } else if (align === 'right') {
+      xStart = -lineMetrics.width;
+    } else {
+      throw new Error('Invalid align');
+    }
 
     for (let s = 0; s < line.length; ++s) {
       const span = line[s];
@@ -42,7 +63,7 @@ export const drawStyledText = (
       ctx.save();
       const top = computeLengthPx(style('top', span.style, baseStyle), m);
       const scale = style('scale', span.style, baseStyle);
-      ctx.translate(x + xStart, y + yStart + top + verticalPos);
+      ctx.translate(xStart, yStart + top + verticalPos);
       ctx.font = style('font', span.style, baseStyle);
       ctx.fillStyle = style('fill', span.style, baseStyle);
       ctx.scale(scale, scale);

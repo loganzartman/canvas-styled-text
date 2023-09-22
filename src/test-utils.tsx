@@ -12,6 +12,7 @@ export const TestCanvas = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawRef = useRef(draw);
   const afRef = useRef<number | null>(null);
+  drawRef.current = draw;
 
   useEffect(() => {
     const f = () => {
@@ -19,7 +20,7 @@ export const TestCanvas = ({
         const ctx = canvasRef.current.getContext('2d');
         if (!ctx) throw new Error('Failed to get canvas2d context!');
 
-        ctx.save();
+        ctx.resetTransform();
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         ctx.fillStyle = 'black';
@@ -28,8 +29,13 @@ export const TestCanvas = ({
         ctx.strokeStyle = 'transparent';
         ctx.textBaseline = 'hanging';
         ctx.textAlign = 'left';
-        drawRef.current(ctx);
-        ctx.restore();
+        try {
+          drawRef.current(ctx);
+        } catch (e) {
+          ctx.resetTransform();
+          ctx.fillStyle = 'red';
+          ctx.fillText('Error!', 30, 30);
+        }
       }
       afRef.current = requestAnimationFrame(f);
     };

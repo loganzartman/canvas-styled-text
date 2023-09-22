@@ -77,7 +77,7 @@ export const TextAlign: Story = () => (
         ctx.textAlign = align;
         drawStyledText(
           ctx,
-          [{text: 'text '}, {text: 'at '}, {text: 'the\n'}, {text: align}],
+          [{text: 'text at'}, {text: ' the'}, {text: '\n'}, {text: align}],
           w / 2,
           (h * (i + 0.5)) / (aligns.length + 1),
           baseStyle,
@@ -185,3 +185,6 @@ export const PerformanceTest: Story = () => (
     }}
   />
 );
+PerformanceTest.meta = {
+  snapshotTest: false,
+};

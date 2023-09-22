@@ -1,6 +1,6 @@
 export type Length = number | {value: number; unit: 'px' | '%'};
 
-export type StyledTextStyle = {
+export type StyledTextSpanStyle = {
   fill?: string | CanvasGradient | CanvasPattern;
   stroke?: string | CanvasGradient | CanvasPattern;
   strokeWidth?: number;
@@ -9,7 +9,11 @@ export type StyledTextStyle = {
   scale?: number;
 };
 
-export type StyledTextSpan = {text: string; style?: StyledTextStyle};
+export type StyledTextStyle = StyledTextSpanStyle & {
+  direction?: 'ltr' | 'rtl';
+};
+
+export type StyledTextSpan = {text: string; style?: StyledTextSpanStyle};
 
 export type StyledText = string | StyledTextSpan | Array<StyledTextSpan>;
 

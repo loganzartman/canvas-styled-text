@@ -11,6 +11,13 @@ export type MeasureLineResult = {
   spanMetrics: Array<TextMetricsShape>;
 };
 
+export type FullTextMetrics = {
+  spans: Array<StyledTextSpan>;
+  lines: Array<Array<StyledTextSpan>>;
+  linesMetrics: Array<MeasureLineResult>;
+  textMetrics: TextMetrics;
+};
+
 export const computeLengthPx = (
   length: Length,
   textMetrics: TextMetrics,
@@ -29,18 +36,40 @@ export const computeLengthPx = (
   throw new Error('Invalid length');
 };
 
+const normalizedDirection = (
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | undefined,
+): 'ltr' | 'rtl' | undefined => {
+  if (!ctx) return undefined;
+  const {direction} = ctx;
+  if (direction === 'inherit') {
+    if (ctx.canvas instanceof OffscreenCanvas) {
+      return undefined;
+    } else {
+      const direction = window.getComputedStyle(ctx.canvas).direction;
+      if (direction !== 'ltr' && direction !== 'rtl') {
+        throw new Error(
+          `Canvas has invalid direction '${direction}'; try setting a direction manually.`,
+        );
+      }
+      return direction;
+    }
+  } else {
+    return direction;
+  }
+};
+
 export const extendContextStyles = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | undefined,
   style: StyledTextStyle | undefined,
 ): StyledTextStyle => {
   return {
-    fill: ctx.fillStyle,
-    stroke: ctx.strokeStyle,
-    strokeWidth: ctx.lineWidth,
-    font: ctx.font,
-    top: 0,
-    scale: 1,
-    ...style,
+    fill: style?.fill ?? ctx?.fillStyle ?? 'black',
+    stroke: style?.stroke ?? ctx?.strokeStyle ?? 'transparent',
+    strokeWidth: style?.strokeWidth ?? ctx?.lineWidth ?? 0,
+    font: style?.font ?? ctx?.font,
+    top: style?.top ?? 0,
+    scale: style?.scale ?? 1,
+    direction: style?.direction ?? normalizedDirection(ctx) ?? 'ltr',
   };
 };
 
@@ -101,12 +130,42 @@ export const hasStroke = (
   return stroke !== 'transparent' && stroke !== 'none' && strokeWidth > 0;
 };
 
+export const normalizedTextAlign = (
+  align: CanvasTextAlign,
+  direction: 'ltr' | 'rtl',
+): 'left' | 'center' | 'right' => {
+  if (direction === 'ltr') {
+    if (align === 'start') return 'left';
+    if (align === 'end') return 'right';
+    return align;
+  } else if (direction === 'rtl') {
+    if (align === 'start') return 'right';
+    if (align === 'end') return 'left';
+    return align;
+  } else {
+    throw new Error(`Unsupported direction '${direction}'`);
+  }
+};
+
+type EnhancedTextMetrics = TextMetrics & {
+  paddingLeft?: number;
+  paddingRight?: number;
+};
+
 export const measureLine = (
   ctx: CanvasRenderingContext2D,
   line: Array<StyledTextSpan>,
   baseStyle: StyledTextStyle | null | undefined,
 ): MeasureLineResult => {
   ctx.save();
+
+  // always measure in left LTR, otherwise horizontal measurements are ambiguous.
+  // alignment is corrected per-line.
+  // use the real baseline; it gives us distinct actual- and font- measurements.
+  const desiredTextAlign = ctx.textAlign;
+  ctx.textAlign = 'left';
+  ctx.direction = 'ltr';
+
   const lineMetrics: TextMetricsShape = {
     actualBoundingBoxAscent: 0,
     actualBoundingBoxDescent: 0,
@@ -117,11 +176,11 @@ export const measureLine = (
     width: 0,
   };
 
-  const spanMetrics = line.map((span) => {
+  const spanMetrics = line.map((span, i) => {
     ctx.font = style('font', span.style, baseStyle);
     const scale = style('scale', span.style, baseStyle);
     const result = ctx.measureText(span.text);
-    return {
+    const spanResult = {
       actualBoundingBoxAscent: result.actualBoundingBoxAscent * scale,
       actualBoundingBoxDescent: result.actualBoundingBoxDescent * scale,
       actualBoundingBoxLeft: result.actualBoundingBoxLeft * scale,
@@ -129,11 +188,18 @@ export const measureLine = (
       fontBoundingBoxAscent: result.fontBoundingBoxAscent * scale,
       fontBoundingBoxDescent: result.fontBoundingBoxDescent * scale,
       width: result.width * scale,
-    } as TextMetrics;
+    } as EnhancedTextMetrics;
+    if (i === 0) {
+      spanResult.paddingLeft = result.actualBoundingBoxLeft;
+    }
+    if (i === line.length - 1) {
+      ctx.textAlign = 'right';
+      const rightResult = ctx.measureText(span.text);
+      spanResult.paddingRight = rightResult.actualBoundingBoxRight;
+      ctx.textAlign = 'left';
+    }
+    return spanResult;
   });
-
-  let xMin = 0;
-  let xMax = 0;
 
   for (let i = 0; i < line.length; ++i) {
     const span = line[i];
@@ -157,17 +223,31 @@ export const measureLine = (
       lineMetrics.fontBoundingBoxDescent,
       m.fontBoundingBoxDescent + top,
     );
-
-    if (m.actualBoundingBoxLeft > 0) {
-      xMin -= m.actualBoundingBoxLeft;
-    } else {
-      xMax -= m.actualBoundingBoxLeft;
-    }
-    xMax += m.actualBoundingBoxRight;
   }
 
-  lineMetrics.actualBoundingBoxLeft = -xMin;
-  lineMetrics.actualBoundingBoxRight = xMax;
+  const align = normalizedTextAlign(
+    desiredTextAlign,
+    style('direction', baseStyle),
+  );
+
+  const firstSpan = spanMetrics[0];
+  const lastSpan = spanMetrics[spanMetrics.length - 1];
+  if (align === 'left') {
+    lineMetrics.actualBoundingBoxLeft = firstSpan.paddingLeft!;
+    lineMetrics.actualBoundingBoxRight =
+      lineMetrics.width + lastSpan.paddingRight!;
+  } else if (align === 'center') {
+    lineMetrics.actualBoundingBoxLeft =
+      lineMetrics.width / 2 + firstSpan.paddingLeft!;
+    lineMetrics.actualBoundingBoxRight =
+      lineMetrics.width / 2 + lastSpan.paddingRight!;
+  } else if (align === 'right') {
+    lineMetrics.actualBoundingBoxLeft =
+      lineMetrics.width + firstSpan.paddingLeft!;
+    lineMetrics.actualBoundingBoxRight = lastSpan.paddingRight!;
+  } else {
+    throw new Error('invalid align');
+  }
 
   ctx.restore();
   return {lineMetrics, spanMetrics};
@@ -220,4 +300,16 @@ export const aggregateLineMetrics = (
     linesMetrics[linesMetrics.length - 1].lineMetrics.fontBoundingBoxDescent;
 
   return metrics;
+};
+
+export const computeFullTextMetrics = (
+  ctx: CanvasRenderingContext2D,
+  text: StyledText,
+  style: StyledTextStyle,
+): FullTextMetrics => {
+  const spans = normalizeStyledText(text);
+  const lines = getLineSpans(spans);
+  const linesMetrics = lines.map((line) => measureLine(ctx, line, style));
+  const textMetrics = aggregateLineMetrics(linesMetrics);
+  return {spans, lines, linesMetrics, textMetrics};
 };
