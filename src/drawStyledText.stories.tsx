@@ -77,7 +77,7 @@ export const TextAlign: Story = () => (
         ctx.textAlign = align;
         drawStyledText(
           ctx,
-          [{text: 'text at'}, {text: ' the'}, {text: '\n'}, {text: align}],
+          ['text at', ' the', '\n', {text: align}],
           w / 2,
           (h * (i + 0.5)) / (aligns.length + 1),
           baseStyle,
@@ -113,7 +113,7 @@ export const TextBaseline: Story = () => (
         ctx.fillRect(0, y, w, 1);
         drawStyledText(
           ctx,
-          [{text: 'baseline '}, {text: baseline, style: {scale: 0.5}}],
+          ['baseline ', {text: baseline, style: {scale: 0.5}}],
           w * 0.5,
           y,
           baseStyle,
@@ -133,12 +133,11 @@ export const KitchenSink: Story = () => (
       drawStyledText(
         ctx,
         [
-          {text: 'The perfect '},
+          'The perfect ',
           {text: 'square', style: {fill: 'red'}},
           {text: ' has no '},
           {text: 'corners', style: {scale: 0.7, top: {value: -80, unit: '%'}}},
-          {text: '\n'},
-          {text: 'Great '},
+          '\nGreat ',
           {
             text: 'talents',
             style: {
@@ -148,7 +147,7 @@ export const KitchenSink: Story = () => (
               font: 'italic 40px cursive',
             },
           },
-          {text: ' ripen late\n'},
+          ' ripen late\n',
           {text: 'The highest notes are hard to hear\n', style: {scale: 0.5}},
           {
             text: 'The greatest form has no shape\n',

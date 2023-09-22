@@ -21,7 +21,7 @@ export const Basic: Story = () => (
     draw={(ctx) => {
       ctx.textBaseline = 'middle';
       const text: StyledText = [
-        {text: 'There once\nwas a man from Peru,\n'},
+        'There once\nwas a man from Peru,\n',
         {text: 'who dreamed\nhe was eating his shoe.', style: {scale: 0.8}},
       ];
       const m = measureStyledText(ctx, text);

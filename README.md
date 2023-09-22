@@ -85,4 +85,3 @@ To run tests:
 
 1. [Install Docker](https://docs.docker.com/engine/install/)
 2. Run `pnpm test` to build the Docker image and run Playwright in it
-   a. It's slow, sorry.

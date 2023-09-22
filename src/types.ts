@@ -15,7 +15,10 @@ export type StyledTextStyle = StyledTextSpanStyle & {
 
 export type StyledTextSpan = {text: string; style?: StyledTextSpanStyle};
 
-export type StyledText = string | StyledTextSpan | Array<StyledTextSpan>;
+export type StyledText =
+  | string
+  | StyledTextSpan
+  | Array<string | StyledTextSpan>;
 
 export type TextMetricsShape = {
   -readonly [key in keyof TextMetrics]: TextMetrics[key];

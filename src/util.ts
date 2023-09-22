@@ -76,13 +76,10 @@ export const extendContextStyles = (
 export const normalizeStyledText = (
   text: StyledText,
 ): Array<StyledTextSpan> => {
-  if (typeof text === 'string') {
-    return [{text}];
+  if (!Array.isArray(text)) {
+    text = [text];
   }
-  if (Array.isArray(text)) {
-    return text;
-  }
-  return [text];
+  return text.map((item) => (typeof item === 'string' ? {text: item} : item));
 };
 
 const splitLines = (s: string): Array<string> => s.split(/\r\n|\r|\n/g);
