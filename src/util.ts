@@ -6,6 +6,12 @@ import {
   TextMetricsShape,
 } from './types';
 
+const transparentBlack = 'rgb(0 0 0 / 0%)';
+
+export type ExperimentalContext = CanvasRenderingContext2D & {
+  fontStretch: CanvasFontStretch;
+};
+
 export type MeasureLineResult = {
   lineMetrics: TextMetricsShape;
   spanMetrics: Array<TextMetricsShape>;
@@ -63,13 +69,22 @@ export const extendContextStyles = (
   style: StyledTextStyle | undefined,
 ): StyledTextStyle => {
   return {
-    fill: style?.fill ?? ctx?.fillStyle ?? 'black',
-    stroke: style?.stroke ?? ctx?.strokeStyle ?? 'transparent',
+    fill: style?.fill ?? ctx?.fillStyle ?? '#000000',
+    stroke: style?.stroke ?? ctx?.strokeStyle ?? transparentBlack,
     strokeWidth: style?.strokeWidth ?? ctx?.lineWidth ?? 0,
-    font: style?.font ?? ctx?.font,
+    font: style?.font ?? ctx?.font ?? 'sans-serif',
+    fontKerning: style?.fontKerning ?? ctx?.fontKerning ?? 'auto',
+    fontStretch:
+      style?.fontStretch ??
+      (ctx as ExperimentalContext | undefined)?.fontStretch ??
+      'normal',
     top: style?.top ?? 0,
     scale: style?.scale ?? 1,
     direction: style?.direction ?? normalizedDirection(ctx) ?? 'ltr',
+    shadowBlur: style?.shadowBlur ?? ctx?.shadowBlur ?? 0,
+    shadowColor: style?.shadowColor ?? ctx?.shadowColor ?? transparentBlack,
+    shadowOffsetX: style?.shadowOffsetX ?? ctx?.shadowOffsetX ?? 0,
+    shadowOffsetY: style?.shadowOffsetY ?? ctx?.shadowOffsetY ?? 0,
   };
 };
 
@@ -175,6 +190,12 @@ export const measureLine = (
 
   const spanMetrics = line.map((span, i) => {
     ctx.font = style('font', span.style, baseStyle);
+    ctx.fontKerning = style('fontKerning', span.style, baseStyle);
+    (ctx as ExperimentalContext).fontStretch = style(
+      'fontStretch',
+      span.style,
+      baseStyle,
+    );
     const scale = style('scale', span.style, baseStyle);
     const result = ctx.measureText(span.text);
     const spanResult = {

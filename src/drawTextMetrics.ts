@@ -1,5 +1,5 @@
 export const drawTextMetrics = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   m: TextMetrics,
   x: number,
   y: number,

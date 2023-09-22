@@ -2,6 +2,7 @@ import {StyledText, StyledTextStyle} from './types';
 import {
   computeFullTextMetrics,
   computeLengthPx,
+  ExperimentalContext,
   extendContextStyles,
   hasStroke,
   normalizedTextAlign,
@@ -65,7 +66,17 @@ export const drawStyledText = (
       const scale = style('scale', span.style, baseStyle);
       ctx.translate(xStart, yStart + top + verticalPos);
       ctx.font = style('font', span.style, baseStyle);
+      ctx.fontKerning = style('fontKerning', span.style, baseStyle);
+      (ctx as ExperimentalContext).fontStretch = style(
+        'fontStretch',
+        span.style,
+        baseStyle,
+      );
       ctx.fillStyle = style('fill', span.style, baseStyle);
+      ctx.shadowBlur = style('shadowBlur', span.style, baseStyle);
+      ctx.shadowColor = style('shadowColor', span.style, baseStyle);
+      ctx.shadowOffsetX = style('shadowOffsetX', span.style, baseStyle);
+      ctx.shadowOffsetY = style('shadowOffsetY', span.style, baseStyle);
       ctx.scale(scale, scale);
       ctx.fillText(span.text, 0, 0);
       if (hasStroke(span.style, baseStyle)) {

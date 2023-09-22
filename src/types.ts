@@ -5,8 +5,14 @@ export type StyledTextSpanStyle = {
   stroke?: string | CanvasGradient | CanvasPattern;
   strokeWidth?: number;
   font?: string;
+  fontKerning?: CanvasFontKerning;
+  fontStretch?: CanvasFontStretch;
   top?: Length;
   scale?: number;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  shadowBlur?: number;
+  shadowColor?: string;
 };
 
 export type StyledTextStyle = StyledTextSpanStyle & {

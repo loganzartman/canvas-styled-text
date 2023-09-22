@@ -12,6 +12,15 @@ export default {
 const w = 800;
 const h = 500;
 
+const makeGradient = (ctx: CanvasRenderingContext2D) => {
+  const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.min(w, h));
+  gradient.addColorStop(0.05, 'aqua');
+  gradient.addColorStop(0.1, 'blue');
+  gradient.addColorStop(0.15, 'purple');
+  gradient.addColorStop(0.2, 'fuchsia');
+  return gradient;
+};
+
 export const Basic: Story = () => (
   <TestCanvas
     w={w}
@@ -128,31 +137,49 @@ export const KitchenSink: Story = () => (
     w={w}
     h={h}
     draw={(ctx) => {
-      const baseStyle: StyledTextStyle = {font: '32px serif'};
+      const baseStyle: StyledTextStyle = {font: '32px sans-serif'};
 
       drawStyledText(
         ctx,
         [
-          'The perfect ',
-          {text: 'square', style: {fill: 'red'}},
-          {text: ' has no '},
-          {text: 'corners', style: {scale: 0.7, top: {value: -80, unit: '%'}}},
-          '\nGreat ',
+          'You can set ',
+          {text: 'colors ', style: {fill: 'purple'}},
+          'and ',
+          {text: 'fonts,\n', style: {fill: 'blue', font: '32px serif'}},
           {
-            text: 'talents',
+            text: 'add multiple lines,\n',
+            style: {font: 'italic 32px sans-serif'},
+          },
+          'plus fun ',
+          {
+            text: 'strokes ',
             style: {
-              stroke: 'purple',
               fill: 'white',
+              stroke: makeGradient(ctx),
               strokeWidth: 2,
-              font: 'italic 40px cursive',
             },
           },
-          ' ripen late\n',
-          {text: 'The highest notes are hard to hear\n', style: {scale: 0.5}},
+          'and ',
           {
-            text: 'The greatest form has no shape\n',
-            style: {font: '30px sans-serif', fill: 'green'},
+            text: 'shadows,\n',
+            style: {
+              shadowBlur: 4,
+              shadowOffsetY: 4,
+              shadowColor: 'darkslateblue',
+            },
           },
+          'or even ',
+          {text: 'scale', style: {scale: 1.2, fill: 'rebeccapurple'}},
+          ' and ',
+          {
+            text: 'offset',
+            style: {
+              scale: 0.7,
+              top: {value: 80, unit: '%'},
+              fill: 'darkorchid',
+            },
+          },
+          ' your text!',
         ],
         32,
         32,

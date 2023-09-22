@@ -10,15 +10,16 @@ Hopefully this will be unnecessary someday!
 
 Features:
 
-- change font
-- change text color
+- change font, etc.
+- change text fill and stroke
 - multiple lines
-- supports textAlign
-- supports textBaseline
+- supports textAlign and textBaseline
 - scale text
 - vertical offset
+- shadows
 - inherits style from canvas context by default
 - no runtime dependencies!
+- tested!
 
 <img src="https://github.com/loganzartman/canvas-styled-text/assets/3401573/1c42a24e-2215-43c4-a9f6-8564ba69257d" width="50%" />
 
