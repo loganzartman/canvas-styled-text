@@ -2,6 +2,8 @@
 
 **[See examples!](https://loganzartman.github.io/canvas-styled-text)**
 
+<img src="https://github.com/loganzartman/canvas-styled-text/assets/3401573/1c42a24e-2215-43c4-a9f6-8564ba69257d" width="50%" />
+
 `fillText` and `strokeText` but with support for multiple lines and multiple fonts and styles in one block of text!
 
 Inspired by but not even vaguely conforming to the [canvas-formatted-text WICG proposal](https://github.com/WICG/canvas-formatted-text).
@@ -20,8 +22,6 @@ Features:
 - inherits style from canvas context by default
 - no runtime dependencies!
 - tested!
-
-<img src="https://github.com/loganzartman/canvas-styled-text/assets/3401573/1c42a24e-2215-43c4-a9f6-8564ba69257d" width="50%" />
 
 ## Installation
 
