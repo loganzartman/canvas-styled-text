@@ -65,14 +65,16 @@ const normalizedDirection = (
 };
 
 export const extendContextStyles = (
-  ctx: CanvasRenderingContext2D | undefined,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | undefined,
   style: StyledTextStyle | undefined,
-): StyledTextStyle => {
+): Required<StyledTextStyle> => {
   return {
+    align: style?.align ?? ctx?.textAlign ?? 'start',
+    baseline: style?.baseline ?? ctx?.textBaseline ?? 'alphabetic',
     fill: style?.fill ?? ctx?.fillStyle ?? '#000000',
     stroke: style?.stroke ?? ctx?.strokeStyle ?? transparentBlack,
     strokeWidth: style?.strokeWidth ?? ctx?.lineWidth ?? 0,
-    font: style?.font ?? ctx?.font ?? 'sans-serif',
+    font: style?.font ?? ctx?.font ?? '10px sans-serif',
     fontKerning: style?.fontKerning ?? ctx?.fontKerning ?? 'auto',
     fontStretch:
       style?.fontStretch ??
@@ -165,18 +167,19 @@ type EnhancedTextMetrics = TextMetrics & {
 };
 
 export const measureLine = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   line: Array<StyledTextSpan>,
-  baseStyle: StyledTextStyle | null | undefined,
+  baseStyle: Required<StyledTextStyle>,
 ): MeasureLineResult => {
   ctx.save();
 
   // always measure in left LTR, otherwise horizontal measurements are ambiguous.
   // alignment is corrected per-line.
   // use the real baseline; it gives us distinct actual- and font- measurements.
-  const desiredTextAlign = ctx.textAlign;
+  const desiredTextAlign = baseStyle.align;
   ctx.textAlign = 'left';
   ctx.direction = 'ltr';
+  ctx.textBaseline = baseStyle.baseline;
 
   const lineMetrics: TextMetricsShape = {
     actualBoundingBoxAscent: 0,
@@ -321,9 +324,9 @@ export const aggregateLineMetrics = (
 };
 
 export const computeFullTextMetrics = (
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   text: StyledText,
-  style: StyledTextStyle,
+  style: Required<StyledTextStyle>,
 ): FullTextMetrics => {
   const spans = normalizeStyledText(text);
   const lines = getLineSpans(spans);

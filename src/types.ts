@@ -16,6 +16,8 @@ export type StyledTextSpanStyle = {
 };
 
 export type StyledTextStyle = StyledTextSpanStyle & {
+  align?: CanvasTextAlign;
+  baseline?: CanvasTextBaseline;
   direction?: 'ltr' | 'rtl';
 };
 

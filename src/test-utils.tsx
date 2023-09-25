@@ -32,6 +32,7 @@ export const TestCanvas = ({
         try {
           drawRef.current(ctx);
         } catch (e) {
+          console.error(e);
           ctx.resetTransform();
           ctx.fillStyle = 'red';
           ctx.fillText('Error!', 30, 30);

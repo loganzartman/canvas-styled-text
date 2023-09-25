@@ -78,6 +78,40 @@ const metrics = measureStyledText(ctx, [
 ]);
 ```
 
+### Cache for performance
+
+You can create a `PrestyledText` when you're drawing the same text with the same style frequently. The text metrics are computed and the text is rendered to an offscreen canvas lazily, so that drawing the text only requires an image copy. Keep in mind that **it doesn't inherit styles from the context**.
+
+```typescript
+import {PrestyledText, drawStyledText} from 'canvas-styled-text';
+
+const text = new PrestyledText('Hello cache!', {
+  fill: 'purple',
+  align: 'center',
+  baseline: 'middle',
+});
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+drawStyledText(ctx, text, 100, 100);
+```
+
+`PrestyledText` respects the current transformation of the canvas. If you change the scale of the canvas by a noticeable amount, the cached rendering is automatically updated for the new scale.
+
+```typescript
+const text = new PrestyledText('Hello cache!', {
+  fill: 'purple',
+  align: 'center',
+  baseline: 'middle',
+});
+
+ctx.translate(100, 100);
+ctx.rotate(0.1);
+ctx.scale(2);
+drawStyledText(ctx, text, 0, 0);
+```
+
 ## Running tests
 
 I use [Ladle](https://ladle.dev/) for stories and [Playwright]() to generate snapshot images of them. Unfortunately, because this project is about text rendering, we need to run in Docker for consistent font rendering.

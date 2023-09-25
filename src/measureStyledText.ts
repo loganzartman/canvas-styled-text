@@ -13,10 +13,10 @@ export const measureStyledText = (
   baseStyle?: StyledTextStyle,
 ): TextMetrics => {
   ctx.save();
-  baseStyle = extendContextStyles(ctx, baseStyle);
+  const style = extendContextStyles(ctx, baseStyle);
   const spans = normalizeStyledText(text);
   const lines = getLineSpans(spans);
-  const linesMetrics = lines.map((line) => measureLine(ctx, line, baseStyle));
+  const linesMetrics = lines.map((line) => measureLine(ctx, line, style));
   const result = aggregateLineMetrics(linesMetrics);
   ctx.restore();
   return result;
