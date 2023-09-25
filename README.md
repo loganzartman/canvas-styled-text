@@ -2,6 +2,9 @@
 
 **[See examples!](https://loganzartman.github.io/canvas-styled-text)**
 
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/loganzartman/canvas-styled-text/workflow.yaml) ![npm](https://img.shields.io/npm/v/canvas-styled-text) ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/canvas-styled-text)
+
+
 <img src="https://github.com/loganzartman/canvas-styled-text/assets/3401573/1c42a24e-2215-43c4-a9f6-8564ba69257d" width="50%" />
 
 `fillText` and `strokeText` but with support for multiple lines and multiple fonts and styles in one block of text!
