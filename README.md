@@ -4,27 +4,31 @@
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/loganzartman/canvas-styled-text/workflow.yaml) ![npm](https://img.shields.io/npm/v/canvas-styled-text) ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/canvas-styled-text)
 
-
 <img src="https://github.com/loganzartman/canvas-styled-text/assets/3401573/1c42a24e-2215-43c4-a9f6-8564ba69257d" width="50%" />
 
-`fillText` and `strokeText` but with support for multiple lines and multiple fonts and styles in one block of text!
+`fillText` and `strokeText` but with support for multiple lines and multiple fonts and styles in one block of text! This is an overengineered solution to my simple problem of drawing subscript text in canvas. Some extra features have crept in.
 
-Inspired by but not even vaguely conforming to the [canvas-formatted-text WICG proposal](https://github.com/WICG/canvas-formatted-text).
-
-Hopefully this will be unnecessary someday!
+This is inspired by but not conforming to the [canvas-formatted-text WICG proposal](https://github.com/WICG/canvas-formatted-text). (Hopefully this will be unnecessary someday!)
 
 Features:
 
-- change font, etc.
-- change text fill and stroke
-- multiple lines
-- supports textAlign and textBaseline
-- scale text
-- vertical offset
-- shadows
-- inherits style from canvas context by default
-- no runtime dependencies!
-- tested!
+- [x] change font
+- [x] change text fill and stroke
+- [x] draw multiple lines with correct line height
+- [x] textAlign and textBaseline
+- [x] basic support for direction (LTR or RTL)
+- [x] scale text
+- [x] vertical offset
+- [x] shadows
+- [x] inherits style from canvas context by default
+- [x] supports pre-rendering for super-fast drawing
+- [x] no runtime dependencies!
+- [x] somewhat tested!
+
+Not supported:
+
+- [ ] automatic word wrapping (maybe someday)
+- [ ] vertical text
 
 ## Installation
 
