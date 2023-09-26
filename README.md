@@ -4,7 +4,7 @@
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/loganzartman/canvas-styled-text/workflow.yaml) ![npm](https://img.shields.io/npm/v/canvas-styled-text) ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/canvas-styled-text)
 
-<img src="https://github.com/loganzartman/canvas-styled-text/assets/3401573/1c42a24e-2215-43c4-a9f6-8564ba69257d" width="50%" />
+<img src="https://github.com/loganzartman/canvas-styled-text/assets/3401573/cfa18954-8ec9-42c9-926a-359e7efdc8fc" width="50%" />
 
 `fillText` and `strokeText` but with support for multiple lines and multiple fonts and styles in one block of text! This is an overengineered solution to my simple problem of drawing subscript text in canvas. Some extra features have crept in.
 
