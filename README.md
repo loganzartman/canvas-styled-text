@@ -2,7 +2,7 @@
 
 **[See examples!](https://loganzartman.github.io/canvas-styled-text)**
 
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/loganzartman/canvas-styled-text/workflow.yaml) ![npm](https://img.shields.io/npm/v/canvas-styled-text) ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/canvas-styled-text)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/loganzartman/canvas-styled-text/workflow.yaml)](https://github.com/loganzartman/canvas-styled-text/actions) [![npm](https://img.shields.io/npm/v/canvas-styled-text)](https://www.npmjs.com/package/canvas-styled-text) [![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/canvas-styled-text)](https://www.npmjs.com/package/canvas-styled-text)
 
 <img src="https://github.com/loganzartman/canvas-styled-text/assets/3401573/cfa18954-8ec9-42c9-926a-359e7efdc8fc" width="50%" />
 
