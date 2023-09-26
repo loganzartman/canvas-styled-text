@@ -1,20 +1,20 @@
-import {
-  Length,
-  StyledText,
-  StyledTextSpan,
-  StyledTextStyle,
-  TextMetricsShape,
-} from './types';
+import {measureTextExtended, TextMetricsExtended} from './measureTextExtended';
+import {Length, StyledText, StyledTextSpan, StyledTextStyle} from './types';
 
 const transparentBlack = 'rgb(0 0 0 / 0%)';
+
+export type TextMetricsExtendedShape = {
+  -readonly [key in keyof TextMetricsExtended]: TextMetricsExtended[key];
+};
 
 export type ExperimentalContext = CanvasRenderingContext2D & {
   fontStretch: CanvasFontStretch;
 };
 
 export type MeasureLineResult = {
-  lineMetrics: TextMetricsShape;
-  spanMetrics: Array<TextMetricsShape>;
+  lineMetrics: TextMetricsExtendedShape;
+  spanMetrics: Array<TextMetricsExtendedShape>;
+  lineHeightPx: number;
 };
 
 export type FullTextMetrics = {
@@ -40,6 +40,24 @@ export const computeLengthPx = (
     );
   }
   throw new Error('Invalid length');
+};
+
+export const stringifyLength = (length: Length) =>
+  typeof length === 'number' ? String(length) : `${length.value}${length.unit}`;
+
+export const computeLineHeightPx = (
+  height: Length,
+  emHeight: number,
+): number => {
+  if (typeof height === 'number') {
+    return height * emHeight;
+  } else if (height.unit === '%') {
+    return (height.value / 100) * emHeight;
+  } else if (height.unit === 'px') {
+    return height.value;
+  } else {
+    throw new Error(`Unsupported length type for line height: ${height}`);
+  }
 };
 
 const normalizedDirection = (
@@ -71,22 +89,23 @@ export const extendContextStyles = (
   return {
     align: style?.align ?? ctx?.textAlign ?? 'start',
     baseline: style?.baseline ?? ctx?.textBaseline ?? 'alphabetic',
+    direction: style?.direction ?? normalizedDirection(ctx) ?? 'ltr',
     fill: style?.fill ?? ctx?.fillStyle ?? '#000000',
-    stroke: style?.stroke ?? ctx?.strokeStyle ?? transparentBlack,
-    strokeWidth: style?.strokeWidth ?? ctx?.lineWidth ?? 0,
     font: style?.font ?? ctx?.font ?? '10px sans-serif',
     fontKerning: style?.fontKerning ?? ctx?.fontKerning ?? 'auto',
     fontStretch:
       style?.fontStretch ??
       (ctx as ExperimentalContext | undefined)?.fontStretch ??
       'normal',
-    top: style?.top ?? 0,
+    lineHeight: style?.lineHeight ?? 1.2,
     scale: style?.scale ?? 1,
-    direction: style?.direction ?? normalizedDirection(ctx) ?? 'ltr',
     shadowBlur: style?.shadowBlur ?? ctx?.shadowBlur ?? 0,
     shadowColor: style?.shadowColor ?? ctx?.shadowColor ?? transparentBlack,
     shadowOffsetX: style?.shadowOffsetX ?? ctx?.shadowOffsetX ?? 0,
     shadowOffsetY: style?.shadowOffsetY ?? ctx?.shadowOffsetY ?? 0,
+    stroke: style?.stroke ?? ctx?.strokeStyle ?? transparentBlack,
+    strokeWidth: style?.strokeWidth ?? ctx?.lineWidth ?? 0,
+    top: style?.top ?? 0,
   };
 };
 
@@ -161,11 +180,6 @@ export const normalizedTextAlign = (
   }
 };
 
-type EnhancedTextMetrics = TextMetrics & {
-  paddingLeft?: number;
-  paddingRight?: number;
-};
-
 export const measureLine = (
   ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   line: Array<StyledTextSpan>,
@@ -175,22 +189,16 @@ export const measureLine = (
 
   // always measure in left LTR, otherwise horizontal measurements are ambiguous.
   // alignment is corrected per-line.
-  // use the real baseline; it gives us distinct actual- and font- measurements.
   const desiredTextAlign = baseStyle.align;
   ctx.textAlign = 'left';
   ctx.direction = 'ltr';
   ctx.textBaseline = baseStyle.baseline;
 
-  const lineMetrics: TextMetricsShape = {
-    actualBoundingBoxAscent: 0,
-    actualBoundingBoxDescent: 0,
-    actualBoundingBoxLeft: 0,
-    actualBoundingBoxRight: 0,
-    fontBoundingBoxAscent: 0,
-    fontBoundingBoxDescent: 0,
-    width: 0,
-  };
+  // how much the text overflows the left and right of the line
+  let paddingLeft = 0;
+  let paddingRight = 0;
 
+  // first, measure individual spans given each of their styles
   const spanMetrics = line.map((span, i) => {
     ctx.font = style('font', span.style, baseStyle);
     ctx.fontKerning = style('fontKerning', span.style, baseStyle);
@@ -199,8 +207,9 @@ export const measureLine = (
       span.style,
       baseStyle,
     );
+
     const scale = style('scale', span.style, baseStyle);
-    const result = ctx.measureText(span.text);
+    const result = measureTextExtended(ctx, span.text);
     const spanResult = {
       actualBoundingBoxAscent: result.actualBoundingBoxAscent * scale,
       actualBoundingBoxDescent: result.actualBoundingBoxDescent * scale,
@@ -209,18 +218,48 @@ export const measureLine = (
       fontBoundingBoxAscent: result.fontBoundingBoxAscent * scale,
       fontBoundingBoxDescent: result.fontBoundingBoxDescent * scale,
       width: result.width * scale,
-    } as EnhancedTextMetrics;
+      emHeightAscent: result.emHeightAscent * scale,
+      emHeightDescent: result.emHeightDescent * scale,
+    };
+
     if (i === 0) {
-      spanResult.paddingLeft = result.actualBoundingBoxLeft;
+      paddingLeft = result.actualBoundingBoxLeft;
     }
+
     if (i === line.length - 1) {
       ctx.textAlign = 'right';
       const rightResult = ctx.measureText(span.text);
-      spanResult.paddingRight = rightResult.actualBoundingBoxRight;
+      paddingRight = rightResult.actualBoundingBoxRight;
       ctx.textAlign = 'left';
     }
+
     return spanResult;
   });
+
+  // next, aggregate spans into a single metrics object representing the whole line,
+  // as if it were a single run of text.
+  const lineMetrics: TextMetricsExtendedShape = {
+    actualBoundingBoxAscent: 0,
+    actualBoundingBoxDescent: 0,
+    actualBoundingBoxLeft: 0,
+    actualBoundingBoxRight: 0,
+    fontBoundingBoxAscent: 0,
+    fontBoundingBoxDescent: 0,
+    width: 0,
+    emHeightAscent: 0,
+    emHeightDescent: 0,
+  };
+  if (line.length === 0) {
+    return {lineMetrics, spanMetrics, lineHeightPx: 0};
+  }
+
+  // we want to compute the max and negative values are possible; initialization to 0 doesn't work.
+  lineMetrics.actualBoundingBoxAscent = -Infinity;
+  lineMetrics.actualBoundingBoxDescent = -Infinity;
+  lineMetrics.fontBoundingBoxAscent = -Infinity;
+  lineMetrics.fontBoundingBoxDescent = -Infinity;
+  lineMetrics.emHeightAscent = -Infinity;
+  lineMetrics.emHeightDescent = -Infinity;
 
   for (let i = 0; i < line.length; ++i) {
     const span = line[i];
@@ -244,39 +283,49 @@ export const measureLine = (
       lineMetrics.fontBoundingBoxDescent,
       m.fontBoundingBoxDescent + top,
     );
+    lineMetrics.emHeightAscent = Math.max(
+      lineMetrics.emHeightAscent,
+      m.emHeightAscent - top,
+    );
+    lineMetrics.emHeightDescent = Math.max(
+      lineMetrics.emHeightDescent,
+      m.emHeightDescent + top,
+    );
   }
 
+  // everything was measured with left alignment.
+  // now, adjust for the desired alignment.
   const align = normalizedTextAlign(
     desiredTextAlign,
     style('direction', baseStyle),
   );
 
-  const firstSpan = spanMetrics[0];
-  const lastSpan = spanMetrics[spanMetrics.length - 1];
   if (align === 'left') {
-    lineMetrics.actualBoundingBoxLeft = firstSpan.paddingLeft!;
-    lineMetrics.actualBoundingBoxRight =
-      lineMetrics.width + lastSpan.paddingRight!;
+    lineMetrics.actualBoundingBoxLeft = paddingLeft;
+    lineMetrics.actualBoundingBoxRight = lineMetrics.width + paddingRight;
   } else if (align === 'center') {
-    lineMetrics.actualBoundingBoxLeft =
-      lineMetrics.width / 2 + firstSpan.paddingLeft!;
-    lineMetrics.actualBoundingBoxRight =
-      lineMetrics.width / 2 + lastSpan.paddingRight!;
+    lineMetrics.actualBoundingBoxLeft = lineMetrics.width / 2 + paddingLeft;
+    lineMetrics.actualBoundingBoxRight = lineMetrics.width / 2 + paddingRight;
   } else if (align === 'right') {
-    lineMetrics.actualBoundingBoxLeft =
-      lineMetrics.width + firstSpan.paddingLeft!;
-    lineMetrics.actualBoundingBoxRight = lastSpan.paddingRight!;
+    lineMetrics.actualBoundingBoxLeft = lineMetrics.width + paddingLeft;
+    lineMetrics.actualBoundingBoxRight = paddingRight;
   } else {
     throw new Error('invalid align');
   }
 
+  const lineHeight = style('lineHeight', baseStyle);
+  const lineHeightPx = computeLineHeightPx(
+    lineHeight,
+    lineMetrics.emHeightAscent + lineMetrics.emHeightDescent,
+  );
+
   ctx.restore();
-  return {lineMetrics, spanMetrics};
+  return {lineMetrics, spanMetrics, lineHeightPx};
 };
 
 export const aggregateLineMetrics = (
   linesMetrics: Array<MeasureLineResult>,
-): TextMetrics => {
+): TextMetricsExtended => {
   const metrics = {
     actualBoundingBoxAscent: 0,
     actualBoundingBoxDescent: 0,
@@ -285,6 +334,8 @@ export const aggregateLineMetrics = (
     fontBoundingBoxAscent: 0,
     fontBoundingBoxDescent: 0,
     width: 0,
+    emHeightAscent: 0,
+    emHeightDescent: 0,
   };
   if (linesMetrics.length === 0) {
     return metrics;
@@ -298,13 +349,23 @@ export const aggregateLineMetrics = (
     linesMetrics[0].lineMetrics.actualBoundingBoxLeft;
   metrics.actualBoundingBoxRight =
     linesMetrics[0].lineMetrics.actualBoundingBoxRight;
+  metrics.emHeightAscent = linesMetrics[0].lineMetrics.emHeightAscent;
+
   for (let i = 0; i < linesMetrics.length; ++i) {
-    const m = linesMetrics[i].lineMetrics;
-    if (i < linesMetrics.length - 1) {
-      const h = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
-      metrics.actualBoundingBoxDescent += h;
-      metrics.fontBoundingBoxDescent += h;
+    const {lineHeightPx} = linesMetrics[i];
+    const halfH = lineHeightPx * 0.5;
+    if (i > 0) {
+      metrics.actualBoundingBoxDescent += halfH;
+      metrics.fontBoundingBoxDescent += halfH;
+      metrics.emHeightDescent += halfH;
     }
+    if (i < linesMetrics.length - 1) {
+      metrics.actualBoundingBoxDescent += halfH;
+      metrics.fontBoundingBoxDescent += halfH;
+      metrics.emHeightDescent += halfH;
+    }
+
+    const m = linesMetrics[i].lineMetrics;
     metrics.width = Math.max(metrics.width, m.width);
     metrics.actualBoundingBoxLeft = Math.max(
       metrics.actualBoundingBoxLeft,
@@ -315,10 +376,11 @@ export const aggregateLineMetrics = (
       m.actualBoundingBoxRight,
     );
   }
-  metrics.actualBoundingBoxDescent +=
-    linesMetrics[linesMetrics.length - 1].lineMetrics.actualBoundingBoxDescent;
-  metrics.fontBoundingBoxDescent +=
-    linesMetrics[linesMetrics.length - 1].lineMetrics.fontBoundingBoxDescent;
+
+  const lm = linesMetrics[linesMetrics.length - 1];
+  metrics.actualBoundingBoxDescent += lm.lineMetrics.actualBoundingBoxDescent;
+  metrics.fontBoundingBoxDescent += lm.lineMetrics.fontBoundingBoxDescent;
+  metrics.emHeightDescent += lm.lineMetrics.emHeightDescent;
 
   return metrics;
 };

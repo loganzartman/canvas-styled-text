@@ -19,15 +19,16 @@ export const Basic: Story = () => (
     w={w}
     h={h}
     draw={(ctx) => {
+      const baseStyle = {lineHeight: 1};
       ctx.textBaseline = 'middle';
       const text: StyledText = [
         'There once\nwas a man from Peru,\n',
         {text: 'who dreamed\nhe was eating his shoe.', style: {scale: 0.8}},
       ];
-      const m = measureStyledText(ctx, text);
+      const m = measureStyledText(ctx, text, baseStyle);
       ctx.translate(32, 64);
       drawTextMetrics(ctx, m, 0, 0);
-      drawStyledText(ctx, text, 0, 0);
+      drawStyledText(ctx, text, 0, 0, baseStyle);
     }}
   />
 );
@@ -39,7 +40,8 @@ export const Playground: Story<{
   direction: CanvasDirection;
   textAlign: CanvasTextAlign;
   textBaseline: CanvasTextBaseline;
-}> = ({text, direction, textAlign, textBaseline}) => (
+  lineHeight: number;
+}> = ({text, direction, textAlign, textBaseline, lineHeight}) => (
   <TestCanvas
     w={w}
     h={h}
@@ -48,14 +50,15 @@ export const Playground: Story<{
       ctx.direction = direction;
       ctx.textAlign = textAlign;
       ctx.textBaseline = textBaseline;
-      const m = measureStyledText(ctx, text);
+      const m = measureStyledText(ctx, text, {lineHeight});
+      console.log(m);
       ctx.fillStyle = 'lime';
       ctx.fillRect(0, h / 2, w, 1);
       ctx.fillRect(w / 2, 0, 1, h);
       ctx.fillStyle = 'black';
       ctx.translate(w / 2, h / 2);
       drawTextMetrics(ctx, m, 0, 0);
-      drawStyledText(ctx, text, 0, 0);
+      drawStyledText(ctx, text, 0, 0, {lineHeight});
       ctx.restore();
     }}
   />
@@ -65,6 +68,7 @@ Playground.args = {
   direction: 'ltr',
   textAlign: 'center',
   textBaseline: 'middle',
+  lineHeight: 1,
 };
 Playground.argTypes = {
   direction: {

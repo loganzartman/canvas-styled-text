@@ -31,13 +31,13 @@ export const drawComputedStyledText = (
 
   for (let l = 0; l < lines.length; ++l) {
     const line = lines[l];
-    const {lineMetrics, spanMetrics} = linesMetrics[l];
+    const {lineMetrics, spanMetrics, lineHeightPx} = linesMetrics[l];
     const lineCenter =
       0.5 *
       (lineMetrics.fontBoundingBoxDescent - lineMetrics.fontBoundingBoxAscent);
 
     if (l > 0) {
-      yStart += lineMetrics.actualBoundingBoxAscent;
+      yStart += lineHeightPx * 0.5;
     }
 
     let xStart: number;
@@ -85,7 +85,7 @@ export const drawComputedStyledText = (
       xStart += m.width;
     }
 
-    yStart += lineMetrics.actualBoundingBoxDescent;
+    yStart += lineHeightPx * 0.5;
   }
 
   ctx.restore();

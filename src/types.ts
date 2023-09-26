@@ -2,17 +2,18 @@ export type Length = number | {value: number; unit: 'px' | '%'};
 
 export type StyledTextSpanStyle = {
   fill?: string | CanvasGradient | CanvasPattern;
-  stroke?: string | CanvasGradient | CanvasPattern;
-  strokeWidth?: number;
   font?: string;
   fontKerning?: CanvasFontKerning;
   fontStretch?: CanvasFontStretch;
-  top?: Length;
+  lineHeight?: Length;
   scale?: number;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
   shadowBlur?: number;
   shadowColor?: string;
+  stroke?: string | CanvasGradient | CanvasPattern;
+  strokeWidth?: number;
+  top?: Length;
 };
 
 export type StyledTextStyle = StyledTextSpanStyle & {
@@ -27,7 +28,3 @@ export type StyledText =
   | string
   | StyledTextSpan
   | Array<string | StyledTextSpan>;
-
-export type TextMetricsShape = {
-  -readonly [key in keyof TextMetrics]: TextMetrics[key];
-};

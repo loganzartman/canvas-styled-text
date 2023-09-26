@@ -4,7 +4,8 @@ import React, {useMemo, useRef} from 'react';
 import {drawStyledText} from './drawStyledText';
 import {PrestyledText} from './prestyledText';
 import {TestCanvas} from './test-utils';
-import {StyledTextStyle} from './types';
+import {Length, StyledTextStyle} from './types';
+import {stringifyLength} from './util';
 
 export default {
   title: 'Draw styled text',
@@ -59,7 +60,7 @@ export const Multiline: Story = () => (
     h={h}
     draw={(ctx) => {
       ctx.textAlign = 'left';
-      drawStyledText(ctx, 'Hello\nworld!', 32, 32);
+      drawStyledText(ctx, 'Hello\nworld!', 32, 32, {lineHeight: 1});
     }}
   />
 );
@@ -411,3 +412,38 @@ PrestyledScaling.storyName = 'Caching: Prestyled scaling';
 PrestyledScaling.meta = {
   snapshotTest: false,
 };
+
+export const LineHeight: Story = () => (
+  <TestCanvas
+    w={w}
+    h={h}
+    draw={(ctx) => {
+      ctx.font = '24px sans-serif';
+
+      const demos = [0.8, 1.0, 1.2, {value: 36, unit: 'px'}] as Array<Length>;
+      demos.forEach((lineHeight, i) => {
+        drawStyledText(
+          ctx,
+          `lineHeight\nset to ${stringifyLength(lineHeight)}`,
+          (w / (demos.length + 1)) * (i + 0.5),
+          32,
+          {lineHeight},
+        );
+      });
+
+      drawStyledText(
+        ctx,
+        [
+          {text: 'many,\n'},
+          {text: 'many lines\n'},
+          {text: 'of many different\n', style: {scale: 1.4}},
+          {text: 'sizes of text\n', style: {scale: 0.75}},
+          {text: 'can be arranged'},
+        ],
+        64,
+        192,
+        {lineHeight: 1},
+      );
+    }}
+  />
+);

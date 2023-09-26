@@ -1,7 +1,7 @@
 {
   "name": "canvas-styled-text",
-  "version": "1.4.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "fillText and strokeText but with multiple styles and lines of text!",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -18,7 +18,7 @@
     "build-ladle": "pnpm ladle build --base=/canvas-styled-text/"
   },
   "keywords": [],
-  "author": "",
+  "author": "Logan Zartman",
   "license": "MIT",
   "devDependencies": {
     "@ladle/react": "^2.17.2",
